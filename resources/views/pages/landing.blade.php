@@ -460,7 +460,7 @@
             </p>
 
             <div class="flex flex-wrap justify-center gap-4">
-                <a href="#"
+                <a href="{{ route('register') }}"
                     class="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-white px-8 py-4 text-base font-semibold text-emerald-600 shadow-xl transition-all duration-200 hover:shadow-2xl active:scale-95">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

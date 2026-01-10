@@ -10,6 +10,9 @@
             @include('partials.navbar')
         @endif
         <main>
+            @if (Auth::check() && Auth::user()->role === 'admin')
+                @include('partials.sidebar')
+            @endif
             @yield('content')
         </main>
         @if (Route::is('landing'))

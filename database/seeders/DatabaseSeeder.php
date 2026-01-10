@@ -15,11 +15,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Create Admin User
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin Klinik',
+            'email' => 'admin@kliniksehat.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+            'phone' => '08123456789',
+            'address' => 'Jl. Kesehatan No. 123, Jakarta Selatan',
+        ]);
+
+        // Create Test Patient User
+        User::factory()->create([
+            'name' => 'John Doe',
+            'email' => 'patient@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'user',
+            'phone' => '08123456780',
+            'date_of_birth' => '1990-05-15',
+            'address' => 'Jl. Contoh No. 45, Jakarta Pusat',
+        ]);
+
+        // Seed Poli dan Dokter
+        $this->call([
+            PoliSeeder::class,
+            DoctorSeeder::class,
         ]);
     }
 }

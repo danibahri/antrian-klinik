@@ -28,8 +28,39 @@
                     </div>
                 </div>
 
+                {{-- error messages --}}
+                @if ($errors->any())
+                    <!-- Toast -->
+                    <div id="dismiss-toast"
+                        class="hs-removing:translate-x-5 hs-removing:opacity-0 mb-5 w-full rounded-xl border border-gray-200 bg-white transition duration-300"
+                        role="alert" tabindex="-1" aria-labelledby="hs-toast-dismiss-button-label">
+                        <div class="flex p-4">
+                            <p id="hs-toast-dismiss-button-label" class="text-sm text-gray-700">
+                                @error('email')
+                                    {{ $message }}
+                                @enderror
+                            </p>
+
+                            <div class="ms-auto">
+                                <button type="button"
+                                    class="focus:outline-hidden inline-flex size-5 shrink-0 items-center justify-center rounded-lg text-gray-800 opacity-50 hover:opacity-100 focus:opacity-100"
+                                    aria-label="Close" data-hs-remove-element="#dismiss-toast">
+                                    <span class="sr-only">Close</span>
+                                    <svg class="size-4 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18"></path>
+                                        <path d="m6 6 12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Toast -->
+                @endif
+
                 <!-- Login Form -->
-                <form class="space-y-6" method="POST" action="#">
+                <form class="space-y-6" method="POST" action="{{ route('login.post') }}">
                     @csrf
 
                     <!-- Email Field -->
@@ -123,7 +154,8 @@
                 <div class="mt-8 space-y-4">
                     <div class="flex items-center gap-3 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
                         <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>

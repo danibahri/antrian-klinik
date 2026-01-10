@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'date_of_birth',
+        'address',
+        'role',
     ];
 
     /**
@@ -43,6 +47,31 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
         ];
+    }
+
+    /**
+     * Relasi: User has many Queues
+     */
+    public function queues()
+    {
+        return $this->hasMany(Queue::class);
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is patient
+     */
+    public function isPatient()
+    {
+        return $this->role === 'user';
     }
 }
