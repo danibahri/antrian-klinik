@@ -17,33 +17,28 @@ class AdminController extends Controller
             'total_doctors' => Doctor::count(),
             'total_polis' => Poli::count(),
             'total_queues' => Queue::count(),
-            'today_queues' => Queue::whereDate('created_at', today())->count(),
+            'today_queues' => Queue::whereDate('visit_date', today())->count(),
+            'waiting_queues' => Queue::where('status', 'WAITING')->whereDate('visit_date', today())->count(),
+            'called_queues' => Queue::where('status', 'CALLED')->whereDate('visit_date', today())->count(),
+            'done_queues' => Queue::where('status', 'DONE')->whereDate('visit_date', today())->count(),
+            'canceled_queues' => Queue::where('status', 'CANCELED')->whereDate('visit_date', today())->count(),
         ];
 
-        return view('pages.admin.dashboard', compact('stats'));
-    }
+        // Recent queues today
+        $recentQueues = Queue::with(['user', 'doctor.poli'])
+            ->whereDate('visit_date', today())
+            ->latest()
+            ->limit(5)
+            ->get();
 
-    public function users()
-    {
-        $users = User::where('role', 'user')->paginate(15);
-        return view('pages.admin.users', compact('users'));
-    }
+        // Today's doctor schedule
+        $todaySchedule = Doctor::with(['poli'])
+            ->where('schedule_day', now()->format('l')) // Monday, Tuesday, etc.
+            ->withCount(['queues' => function ($query) {
+                $query->whereDate('visit_date', today());
+            }])
+            ->get();
 
-    public function doctors()
-    {
-        $doctors = Doctor::with('poli')->paginate(15);
-        return view('pages.admin.doctors', compact('doctors'));
-    }
-
-    public function polis()
-    {
-        $polis = Poli::withCount('doctors')->paginate(15);
-        return view('pages.admin.polis', compact('polis'));
-    }
-
-    public function queues()
-    {
-        $queues = Queue::with(['user', 'doctor', 'poli'])->latest()->paginate(15);
-        return view('pages.admin.queues', compact('queues'));
+        return view('pages.admin.dashboard', compact('stats', 'recentQueues', 'todaySchedule'));
     }
 }

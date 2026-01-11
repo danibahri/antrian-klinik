@@ -12,6 +12,7 @@
         <main>
             @if (Auth::check() && Auth::user()->role === 'admin')
                 @include('partials.sidebar')
+                @include('partials.header-admin')
             @endif
             @yield('content')
         </main>

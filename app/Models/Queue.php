@@ -43,6 +43,14 @@ class Queue extends Model
     }
 
     /**
+     * Relasi: Queue belongs to Poli (through Doctor)
+     */
+    public function poli()
+    {
+        return $this->hasOneThrough(Poli::class, Doctor::class, 'id', 'id', 'doctor_id', 'poli_id');
+    }
+
+    /**
      * Scope: Get waiting queues
      */
     public function scopeWaiting($query)
