@@ -30,7 +30,7 @@ return new class extends Migration
             $table->index(['user_id', 'status']);
 
             // Unique constraint: user tidak bisa daftar 2x ke dokter sama di tanggal sama
-            $table->unique(['user_id', 'doctor_id', 'visit_date'], 'unique_user_doctor_date');
+            // $table->unique(['user_id', 'doctor_id', 'visit_date'], 'unique_user_doctor_date');
         });
     }
 

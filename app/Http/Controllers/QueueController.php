@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Queue;
 
 class QueueController extends Controller
 {
     public function queues(Request $request)
     {
+        // Set default date to today if not provided
+        $filterDate = $request->filled('date') ? $request->date : date('Y-m-d');
+
         $query = Queue::with(['user', 'doctor.poli']);
 
         // Filter by date
-        if ($request->filled('date')) {
-            $query->whereDate('visit_date', $request->date);
-        }
+        $query->whereDate('visit_date', $filterDate);
 
         // Filter by status
         if ($request->filled('status')) {
@@ -35,16 +37,18 @@ class QueueController extends Controller
             });
         }
 
-        $queues = $query->latest('visit_date')
-            ->latest('created_at')
+        // Order by queue number first (most important for same date)
+        $queues = $query->orderBy('queue_number', 'asc')
+            ->orderBy('created_at', 'asc')
             ->paginate(15)
             ->withQueryString();
 
+        // Get statistics for the filtered date
         $stats = [
-            'waiting' => Queue::where('status', 'WAITING')->count(),
-            'called' => Queue::where('status', 'CALLED')->count(),
-            'done' => Queue::where('status', 'DONE')->count(),
-            'canceled' => Queue::where('status', 'CANCELED')->count(),
+            'waiting' => Queue::where('status', 'WAITING')->whereDate('visit_date', $filterDate)->count(),
+            'called' => Queue::where('status', 'CALLED')->whereDate('visit_date', $filterDate)->count(),
+            'done' => Queue::where('status', 'DONE')->whereDate('visit_date', $filterDate)->count(),
+            'canceled' => Queue::where('status', 'CANCELED')->whereDate('visit_date', $filterDate)->count(),
         ];
 
         // Get all polis for filter dropdown
@@ -55,58 +59,106 @@ class QueueController extends Controller
 
     public function callQueue(Queue $queue)
     {
-        if ($queue->status === 'WAITING') {
-            $queue->update([
-                'status' => 'CALLED',
-                'called_at' => now(),
-            ]);
-            return redirect()->back()->with('success', 'Antrian berhasil dipanggil');
-        }
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($queue) {
+                // Lock the queue to prevent concurrent updates
+                $lockedQueue = Queue::where('id', $queue->id)->lockForUpdate()->first();
 
-        return redirect()->back()->with('error', 'Antrian tidak dapat dipanggil');
+                if ($lockedQueue && $lockedQueue->status === 'WAITING') {
+                    $lockedQueue->update([
+                        'status' => 'CALLED',
+                        'called_at' => now(),
+                    ]);
+                } else {
+                    throw new \Exception('Antrian tidak dapat dipanggil');
+                }
+            });
+
+            return redirect()->back()->with('success', 'Antrian berhasil dipanggil');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     public function completeQueue(Queue $queue)
     {
-        if (in_array($queue->status, ['WAITING', 'CALLED'])) {
-            $queue->update([
-                'status' => 'DONE',
-                'completed_at' => now(),
-            ]);
-            return redirect()->back()->with('success', 'Antrian berhasil diselesaikan');
-        }
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($queue) {
+                // Lock the queue to prevent concurrent updates
+                $lockedQueue = Queue::where('id', $queue->id)->lockForUpdate()->first();
 
-        return redirect()->back()->with('error', 'Antrian tidak dapat diselesaikan');
+                if ($lockedQueue && in_array($lockedQueue->status, ['WAITING', 'CALLED'])) {
+                    $lockedQueue->update([
+                        'status' => 'DONE',
+                        'completed_at' => now(),
+                    ]);
+                } else {
+                    throw new \Exception('Antrian tidak dapat diselesaikan');
+                }
+            });
+
+            return redirect()->back()->with('success', 'Antrian berhasil diselesaikan');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     public function cancelQueue(Queue $queue)
     {
-        if ($queue->status === 'WAITING') {
-            $queue->update([
-                'status' => 'CANCELED',
-                'canceled_at' => now(),
-            ]);
-            return redirect()->back()->with('success', 'Antrian berhasil dibatalkan');
-        }
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($queue) {
+                // Lock the queue to prevent concurrent updates
+                $lockedQueue = Queue::where('id', $queue->id)->lockForUpdate()->first();
 
-        return redirect()->back()->with('error', 'Antrian tidak dapat dibatalkan');
+                if ($lockedQueue && $lockedQueue->status === 'WAITING') {
+                    $lockedQueue->update([
+                        'status' => 'CANCELED',
+                        'canceled_at' => now(),
+                    ]);
+                } else {
+                    throw new \Exception('Antrian tidak dapat dibatalkan');
+                }
+            });
+
+            return redirect()->back()->with('success', 'Antrian berhasil dibatalkan');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     public function callNextQueue()
     {
-        $nextQueue = Queue::where('status', 'WAITING')
-            ->whereDate('visit_date', today())
-            ->orderBy('queue_number')
-            ->first();
+        try {
+            // Use transaction with locking to prevent race condition
+            $nextQueue = \Illuminate\Support\Facades\DB::transaction(function () {
+                // Get the next waiting queue for today with locking
+                $queue = Queue::where('status', 'WAITING')
+                    ->whereDate('visit_date', today())
+                    ->orderBy('queue_number', 'asc')
+                    ->orderBy('created_at', 'asc')
+                    ->lockForUpdate()
+                    ->first();
 
-        if ($nextQueue) {
-            $nextQueue->update([
-                'status' => 'CALLED',
-                'called_at' => now(),
-            ]);
-            return redirect()->back()->with('success', "Antrian {$nextQueue->queue_number} berhasil dipanggil");
+                if ($queue) {
+                    $queue->update([
+                        'status' => 'CALLED',
+                        'called_at' => now(),
+                    ]);
+                }
+
+                return $queue;
+            });
+
+            if ($nextQueue) {
+                $doctorName = $nextQueue->doctor->name ?? 'Dokter';
+                $patientName = $nextQueue->user->name ?? 'Pasien';
+
+                return redirect()->back()->with('success', "Antrian nomor {$nextQueue->queue_number} ({$patientName} - {$doctorName}) berhasil dipanggil");
+            }
+
+            return redirect()->back()->with('error', 'Tidak ada antrian yang menunggu untuk hari ini');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        return redirect()->back()->with('error', 'Tidak ada antrian yang menunggu');
     }
 }

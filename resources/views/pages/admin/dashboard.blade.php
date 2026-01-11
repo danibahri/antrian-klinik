@@ -195,11 +195,13 @@
                                                 </div>
                                             </td>
                                             <td class="whitespace-nowrap px-6 py-4">
-                                                <div class="text-sm text-gray-900">{{ $queue->doctor->name }}</div>
-                                                <div class="text-xs text-gray-500">{{ $queue->doctor->poli->name }}</div>
+                                                <div class="text-sm text-gray-900">{{ $queue->doctor->name ?? '-' }}</div>
+                                                <div class="text-xs text-gray-500">{{ $queue->doctor->poli->name ?? '-' }}
+                                                </div>
                                             </td>
                                             <td class="whitespace-nowrap px-6 py-4">
-                                                <div class="text-base font-bold text-gray-900">{{ $queue->queue_number }}
+                                                <div class="text-base font-bold text-gray-900">
+                                                    {{ $queue->queue_number ?? '-' }}
                                                 </div>
                                             </td>
                                             <td class="whitespace-nowrap px-6 py-4">
@@ -374,7 +376,7 @@
                     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                         <h3 class="mb-4 text-lg font-bold text-gray-900">Aksi Cepat</h3>
                         <div class="space-y-3">
-                            <a href="{{ route('admin.users') }}"
+                            <a href="{{ route('admin.patients') }}"
                                 class="flex w-full items-center gap-3 rounded-lg border border-gray-200 p-3 text-left hover:border-emerald-500 hover:bg-emerald-50">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
                                     <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor"

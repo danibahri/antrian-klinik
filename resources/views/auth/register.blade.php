@@ -140,8 +140,29 @@
                 </div>
 
                 <!-- Register Form -->
-                <form class="space-y-5" method="POST" action="#">
+                <form class="space-y-5" method="POST" action="{{ route('register.post') }}">
                     @csrf
+
+                    <!-- Validation Errors Alert -->
+                    @if ($errors->any())
+                        <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+                            <div class="flex">
+                                <svg class="h-5 w-5 flex-shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-semibold text-red-800">Ada beberapa kesalahan:</h3>
+                                    <ul class="mt-2 list-inside list-disc text-sm text-red-700">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Name Field -->
                     <div>
@@ -155,9 +176,13 @@
                                 Nama Lengkap
                             </span>
                         </label>
-                        <input type="text" id="name" name="name" placeholder="Masukkan nama lengkap"
-                            class="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                        <input type="text" id="name" name="name" value="{{ old('name') }}"
+                            placeholder="Masukkan nama lengkap"
+                            class="@error('name') border-red-500 @enderror block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
                             required>
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Email Field -->
@@ -172,9 +197,13 @@
                                 Alamat Email
                             </span>
                         </label>
-                        <input type="email" id="email" name="email" placeholder="nama@email.com"
-                            class="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                        <input type="email" id="email" name="email" value="{{ old('email') }}"
+                            placeholder="nama@email.com"
+                            class="@error('email') border-red-500 @enderror block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
                             required>
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Phone Field -->
@@ -189,9 +218,13 @@
                                 Nomor Telepon
                             </span>
                         </label>
-                        <input type="tel" id="phone" name="phone" placeholder="08xx-xxxx-xxxx"
-                            class="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                        <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
+                            placeholder="08xx-xxxx-xxxx"
+                            class="@error('phone') border-red-500 @enderror block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
                             required>
+                        @error('phone')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Date of Birth Field -->
@@ -206,9 +239,13 @@
                                 Tanggal Lahir
                             </span>
                         </label>
-                        <input type="date" id="date_of_birth" name="date_of_birth"
-                            class="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                        <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
+                            max="{{ date('Y-m-d') }}"
+                            class="@error('date_of_birth') border-red-500 @enderror block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
                             required>
+                        @error('date_of_birth')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Address Field -->
@@ -226,8 +263,11 @@
                             </span>
                         </label>
                         <textarea id="address" name="address" rows="2" placeholder="Masukkan alamat lengkap"
-                            class="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
-                            required></textarea>
+                            class="@error('address') border-red-500 @enderror block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                            required>{{ old('address') }}</textarea>
+                        @error('address')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Password Field -->
@@ -244,18 +284,27 @@
                         </label>
                         <div class="relative">
                             <input type="password" id="password" name="password" placeholder="Minimal 8 karakter"
-                                class="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
-                                required>
-                            <button type="button"
+                                class="@error('password') border-red-500 @enderror block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                                required minlength="8">
+                            <button type="button" onclick="togglePassword('password')"
                                 class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg id="password-icon-show" class="h-5 w-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
+                                <svg id="password-icon-hide" class="hidden h-5 w-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
                             </button>
                         </div>
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Password Confirmation Field -->
@@ -273,24 +322,34 @@
                         <div class="relative">
                             <input type="password" id="password_confirmation" name="password_confirmation"
                                 placeholder="Ulangi password"
-                                class="block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
-                                required>
-                            <button type="button"
+                                class="@error('password_confirmation') border-red-500 @enderror block w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-gray-900 transition-colors placeholder:text-gray-400 hover:border-gray-300 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                                required minlength="8">
+                            <button type="button" onclick="togglePassword('password_confirmation')"
                                 class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg id="password_confirmation-icon-show" class="h-5 w-5" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
+                                <svg id="password_confirmation-icon-hide" class="hidden h-5 w-5" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
                             </button>
                         </div>
+                        @error('password_confirmation')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Terms & Conditions -->
                     <div class="flex items-start">
-                        <input id="terms" name="terms" type="checkbox"
-                            class="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 transition-colors focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
+                        <input id="terms" name="terms" type="checkbox" value="1"
+                            {{ old('terms') ? 'checked' : '' }}
+                            class="@error('terms') border-red-500 @enderror mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 transition-colors focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
                             required>
                         <label for="terms" class="ml-2 block text-sm text-gray-700">
                             Saya menyetujui <a href="#"
@@ -299,6 +358,9 @@
                                 class="font-semibold text-emerald-600 hover:text-emerald-700">Kebijakan Privasi</a>
                         </label>
                     </div>
+                    @error('terms')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
 
                     <!-- Submit Button -->
                     <button type="submit"
@@ -347,4 +409,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const showIcon = document.getElementById(fieldId + '-icon-show');
+            const hideIcon = document.getElementById(fieldId + '-icon-hide');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                showIcon.classList.add('hidden');
+                hideIcon.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                showIcon.classList.remove('hidden');
+                hideIcon.classList.add('hidden');
+            }
+        }
+    </script>
 @endsection

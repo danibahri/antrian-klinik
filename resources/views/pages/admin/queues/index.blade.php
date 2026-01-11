@@ -247,22 +247,26 @@
                                                 </span>
                                             </div>
                                             <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900">{{ $queue->user->name }}
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $queue->user->name ?? '-' }}
                                                 </div>
                                                 <div class="text-xs text-gray-500">{{ $queue->user->phone ?? '-' }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-900">{{ $queue->doctor->name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $queue->doctor->poli->name }}</div>
+                                        <div class="text-sm text-gray-900">{{ $queue->doctor->name ?? '-' }}</div>
+                                        <div class="text-xs text-gray-500">{{ $queue->doctor->poli->name ?? '-' }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <div class="text-sm text-gray-900">{{ $queue->visit_date->format('d M Y') }}</div>
-                                        <div class="text-xs text-gray-500">{{ $queue->created_at->format('H:i') }}</div>
+                                        <div class="text-sm text-gray-900">
+                                            {{ $queue->visit_date ? $queue->visit_date->format('d M Y') : '-' }}</div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ $queue->created_at ? $queue->created_at->format('H:i') : '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <p class="max-w-xs truncate text-sm text-gray-600">{{ $queue->complaint }}</p>
+                                        <p class="max-w-xs truncate text-sm text-gray-600">{{ $queue->complaint ?? '-' }}
+                                        </p>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
                                         @if ($queue->status === 'WAITING')

@@ -17,13 +17,26 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate'])->name('login.post');
 Route::get('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/register', [AuthController::class, 'storeRegister'])->name('register.post');
 
 // Admin routes - requires admin role
 Route::middleware([AuthMiddleware::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
+    // Profile routes
+    Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
+    Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
+
     // User management routes
     Route::get('/users', [AdminController::class, 'users'])->name('users');
+
+    // Patient management routes
+    Route::get('/patients', [AdminController::class, 'patients'])->name('patients');
+    Route::get('/patients/create', [AdminController::class, 'createPatient'])->name('patients.create');
+    Route::post('/patients', [AdminController::class, 'storePatient'])->name('patients.store');
+    Route::get('/patients/{patient}/edit', [AdminController::class, 'editPatient'])->name('patients.edit');
+    Route::put('/patients/{patient}', [AdminController::class, 'updatePatient'])->name('patients.update');
+    Route::delete('/patients/{patient}', [AdminController::class, 'destroyPatient'])->name('patients.destroy');
 
     // Doctor management routes
     Route::get('/doctors', [DokterController::class, 'doctors'])->name('doctors');
@@ -52,6 +65,18 @@ Route::middleware([AuthMiddleware::class . ':admin'])->prefix('admin')->name('ad
 // User routes - requires user role
 Route::middleware([AuthMiddleware::class . ':user'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+
+    // Profile routes
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
+    // Queue routes
+    Route::get('/queues', [UserController::class, 'allQueues'])->name('queues');
+    Route::post('/queues', [UserController::class, 'storeQueue'])->name('queues.store');
+    Route::post('/queues/{queue}/cancel', [UserController::class, 'cancelQueue'])->name('queues.cancel');
+
+    // API routes for dynamic data
+    Route::get('/api/polis/{poli}/doctors', [UserController::class, 'getDoctorsByPoli'])->name('api.doctors');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
